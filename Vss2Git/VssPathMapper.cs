@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Hpdi.VssLogicalLib;
 
@@ -318,6 +319,7 @@ namespace Hpdi.Vss2Git
             return false;
         }
 
+        /// RETURNS THE FUCKING FULL PATH TO THE OUT PROJECT
         public string GetProjectPath(string project)
         {
             VssProjectInfo projectInfo;
@@ -357,7 +359,12 @@ namespace Hpdi.Vss2Git
             return null;
         }
 
-        public IEnumerable<string> GetFilePaths(string file, string underProject)
+        public string GetRootPath()
+        {
+            return rootInfos.Values.First().GetPath();
+        }
+
+        public IEnumerable<string> GetFilePaths(string file, string underProject, Logger logger)
         {
             var result = new LinkedList<string>();
             VssFileInfo fileInfo;
@@ -371,6 +378,12 @@ namespace Hpdi.Vss2Git
                         return result;
                     }
                 }
+
+                if (fileInfo.Projects.Count() == 0)
+                {
+                    logger.WriteLine("NOTE: Could not find paths for file: {0}", fileInfo);
+                }
+
                 foreach (var project in fileInfo.Projects)
                 {
                     if (underProjectInfo == null || project.IsSameOrSubproject(underProjectInfo))

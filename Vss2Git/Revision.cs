@@ -37,10 +37,10 @@ namespace Hpdi.Vss2Git
             get { return user; }
         }
 
-        private readonly VssItemName item;
-        public VssItemName Item
+        private readonly VssItemName itemName;
+        public VssItemName ItemName
         {
-            get { return item; }
+            get { return itemName; }
         } 
 
         private readonly int version;
@@ -61,12 +61,12 @@ namespace Hpdi.Vss2Git
             get { return action; }
         }
 
-        public Revision(DateTime dateTime, string user, VssItemName item,
+        public Revision(DateTime dateTime, string user, VssItemName itemName,
             int version, string comment, VssAction action)
         {
             this.dateTime = dateTime;
             this.user = user;
-            this.item = item;
+            this.itemName = itemName;
             this.version = version;
             this.comment = comment;
             this.action = action;

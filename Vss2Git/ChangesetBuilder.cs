@@ -74,7 +74,7 @@ namespace Hpdi.Vss2Git
                         // determine target of project revisions
                         var actionType = revision.Action.Type;
                         var namedAction = revision.Action as VssNamedAction;
-                        var targetFile = revision.Item.PhysicalName;
+                        var targetFile = revision.ItemName.PhysicalName;
                         if (namedAction != null)
                         {
                             targetFile = namedAction.Name.PhysicalName;
@@ -83,7 +83,7 @@ namespace Hpdi.Vss2Git
                         // Create actions are only used to obtain initial item comments;
                         // items are actually created when added to a project
                         var creating = (actionType == VssActionType.Create ||
-                            (actionType == VssActionType.Branch && !revision.Item.IsProject));
+                            (actionType == VssActionType.Branch && !revision.ItemName.IsProject));
 
                         // Share actions are never conflict (which is important,
                         // since Share always precedes Branch)
@@ -234,7 +234,7 @@ namespace Hpdi.Vss2Git
             foreach (var revision in changeset.Revisions)
             {
                 logger.WriteLine("  {0} {1}@{2} {3}",
-                    revision.DateTime, revision.Item, revision.Version, revision.Action);
+                    revision.DateTime, revision.ItemName, revision.Version, revision.Action);
             }
         }
     }

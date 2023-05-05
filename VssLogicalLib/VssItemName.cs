@@ -50,7 +50,7 @@ namespace Hpdi.VssLogicalLib
             get { return isProject; }
         }
 
-        internal VssItemName(string logicalName, string physicalName, bool isProject)
+        public VssItemName(string logicalName, string physicalName, bool isProject)
         {
             this.logicalName = logicalName;
             this.physicalName = physicalName;

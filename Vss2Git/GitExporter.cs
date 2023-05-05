@@ -267,18 +267,18 @@ namespace Hpdi.Vss2Git
         {
             var needCommit = false;
             var actionType = revision.Action.Type;
-            if (revision.Item.IsProject)
+            if (revision.ItemName.IsProject)
             {
                 // note that project path (and therefore target path) can be
                 // null if a project was moved and its original location was
                 // subsequently destroyed
-                var project = revision.Item;
+                var project = revision.ItemName;
                 var projectName = project.LogicalName;
-                var projectPath = pathMapper.GetProjectPath(project.PhysicalName);
+                 var projectPath = pathMapper.GetProjectPath(project.PhysicalName);
                 var projectDesc = projectPath;
                 if (projectPath == null)
                 {
-                    projectDesc = revision.Item.ToString();
+                    projectDesc = revision.ItemName.ToString();
                     logger.WriteLine("NOTE: {0} is currently unmapped", project);
                 }
 
@@ -306,7 +306,21 @@ namespace Hpdi.Vss2Git
                         break;
 
                     case VssActionType.Create:
-                        // ignored; items are actually created when added to a project
+                        if (projectPath == null)
+                        {
+                            logger.WriteLine("{0}: Creating {0} because it was not found", projectDesc, target.LogicalName);
+                            // If, for example from damage, we can not find the project, we deduce a location from where it ends up in the end
+                            // We do this by checking for it in the database
+                            // NOTE: this could case an error when encountering a move Action, git will try and move the file into itself
+                            // this can be safely ignored TODO: maybe do something about that lol
+                            VssProject item = database.GetItemPhysical(project.PhysicalName) as VssProject;
+                            var rootPath = pathMapper.GetRootPath();
+                            // TODO: this could be changed so this works for all other projects
+                            // by replacing this $/teamSpirit constant with the first project path that was push into pathMapper
+                            var path = Path.Combine(rootPath, item.Path.Replace("$/teamSpirit/", ""));
+                            pathMapper.SetProjectPath(target.PhysicalName, path, item.Path);
+                            projectPath = pathMapper.GetProjectPath(project.PhysicalName);
+                        }
                         break;
 
                     case VssActionType.Add:
@@ -560,7 +574,7 @@ namespace Hpdi.Vss2Git
                 // was branched from a file that is not part of the migration subset; it will
                 // make sure we start with the correct revision instead of the first revision
 
-                var target = revision.Item;
+                var target = revision.ItemName;
 
                 // update current rev
                 pathMapper.SetFileVersion(target, revision.Version);
@@ -664,7 +678,7 @@ namespace Hpdi.Vss2Git
             string physicalName, int version, string underProject, GitWrapper git)
         {
             var needCommit = false;
-            var paths = pathMapper.GetFilePaths(physicalName, underProject);
+            var paths = pathMapper.GetFilePaths(physicalName, underProject, logger);
             foreach (string path in paths)
             {
                 logger.WriteLine("{0}: {1} revision {2}", path, actionType, version);

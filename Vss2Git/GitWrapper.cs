@@ -140,6 +140,10 @@ namespace Hpdi.Vss2Git
 
         public void Move(string sourcePath, string destPath)
         {
+            if (!Directory.Exists(Path.GetDirectoryName(sourcePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(sourcePath));
+            }
             GitExec("mv -- " + Quote(sourcePath) + " " + Quote(destPath));
         }
 
