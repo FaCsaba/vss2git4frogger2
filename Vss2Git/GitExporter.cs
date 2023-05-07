@@ -309,15 +309,14 @@ namespace Hpdi.Vss2Git
                         if (projectPath == null)
                         {
                             logger.WriteLine("{0}: Creating {0} because it was not found", projectDesc, target.LogicalName);
-                            // If, for example from damage, we can not find the project, we deduce a location from where it ends up in the end
+                            // If, for example from damage or the folder coming from a project that is higher than the one we are initialy working with,
+                            // we can not find the project, we deduce a location from where it ends up in the end
                             // We do this by checking for it in the database
                             // NOTE: this could case an error when encountering a move Action, git will try and move the file into itself
                             // this can be safely ignored TODO: maybe do something about that lol
                             VssProject item = database.GetItemPhysical(project.PhysicalName) as VssProject;
                             var rootPath = pathMapper.GetRootPath();
-                            // TODO: this could be changed so this works for all other projects
-                            // by replacing this $/teamSpirit constant with the first project path that was push into pathMapper
-                            var path = Path.Combine(rootPath, item.Path.Replace("$/teamSpirit/", ""));
+                            var path = VssPathMapper.GetWorkingPath(rootPath, item.Path);
                             pathMapper.SetProjectPath(target.PhysicalName, path, item.Path);
                             projectPath = pathMapper.GetProjectPath(project.PhysicalName);
                         }
